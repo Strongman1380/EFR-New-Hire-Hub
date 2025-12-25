@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Epworth Village Interview Assistant</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">EV</div>
+          <div class="logo-text">
+            <h1>Epworth Village</h1>
+            <span>Interview Assistant</span>
+          </div>
+        </div>
+        <nav class="nav-tabs">
+          <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
+          <button class="nav-tab" data-tab="assessment">True Colors</button>
+          <button class="nav-tab" data-tab="scenarios">Scenarios</button>
+          <button class="nav-tab" data-tab="interview">Evaluation</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Dashboard Tab -->
+      <section id="dashboard" class="tab-content active">
+        <div class="section-header">
+          <h2>Dashboard</h2>
+          <p>Welcome to the Epworth Village Interview Assistant</p>
+        </div>
+
+        <!-- Core Values -->
+        <div class="values-grid">
+          <div class="value-card">
+            <div class="value-icon">💜</div>
+            <h3>Trauma-Informed Care</h3>
+            <p>Understanding and responding to the impact of trauma</p>
+          </div>
+          <div class="value-card">
+            <div class="value-icon">👨‍👩‍👧‍👦</div>
+            <h3>Family Preservation</h3>
+            <p>Keeping families together safely when possible</p>
+          </div>
+          <div class="value-card">
+            <div class="value-icon">📈</div>
+            <h3>Professional Growth</h3>
+            <p>Continuous learning and development</p>
+          </div>
+          <div class="value-card">
+            <div class="value-icon">✅</div>
+            <h3>Accountability</h3>
+            <p>Taking responsibility for actions and outcomes</p>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+          <div class="stat-card" style="border-left: 4px solid #D4AF37;">
+            <div class="stat-number">4</div>
+            <div class="stat-label">True Colors</div>
+          </div>
+          <div class="stat-card" style="border-left: 4px solid #4169E1;">
+            <div class="stat-number">20</div>
+            <div class="stat-label">Assessment Questions</div>
+          </div>
+          <div class="stat-card" style="border-left: 4px solid #2E8B57;">
+            <div class="stat-number">6</div>
+            <div class="stat-label">In-Home Scenarios</div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <h3>Quick Actions</h3>
+          <div class="action-buttons">
+            <button class="action-btn" onclick="showTab('assessment')">
+              <span class="btn-icon">🎨</span>
+              True Colors Assessment
+            </button>
+            <button class="action-btn" onclick="showTab('scenarios')">
+              <span class="btn-icon">📖</span>
+              Scenario Responses
+            </button>
+            <button class="action-btn" onclick="showTab('interview')">
+              <span class="btn-icon">📋</span>
+              Interviewer Evaluation
+            </button>
+            <button class="action-btn" onclick="checkSheetsConnection()">
+              <span class="btn-icon">🔗</span>
+              Check Sheets Connection
+            </button>
+          </div>
+        </div>
+
+        <!-- Color Legend -->
+        <div class="color-legend">
+          <h3>True Colors Overview</h3>
+          <div class="colors-grid">
+            <div class="color-card" style="border-left: 5px solid #D4AF37;">
+              <h4 style="color: #D4AF37;">Gold</h4>
+              <p>Organized, responsible, structured, dependable</p>
+            </div>
+            <div class="color-card" style="border-left: 5px solid #2E8B57;">
+              <h4 style="color: #2E8B57;">Green</h4>
+              <p>Analytical, logical, conceptual, inventive</p>
+            </div>
+            <div class="color-card" style="border-left: 5px solid #FF8C00;">
+              <h4 style="color: #FF8C00;">Orange</h4>
+              <p>Adventurous, spontaneous, action-oriented, flexible</p>
+            </div>
+            <div class="color-card" style="border-left: 5px solid #4169E1;">
+              <h4 style="color: #4169E1;">Blue</h4>
+              <p>Empathetic, compassionate, relationship-focused, harmonious</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- True Colors Assessment Tab -->
+      <section id="assessment" class="tab-content">
+        <div class="section-header">
+          <h2>True Colors Personality Assessment</h2>
+          <p>Discover your communication and work style</p>
+        </div>
+
+        <!-- Assessment Info -->
+        <div class="assessment-info">
+          <div class="info-card">
+            <h3>About This Assessment</h3>
+            <p>This assessment identifies your primary and secondary "True Colors" - personality types that influence how you communicate, work, and interact with others.</p>
+            <div class="colors-preview">
+              <span class="color-badge" style="background: #D4AF37;">Gold - The Planner</span>
+              <span class="color-badge" style="background: #2E8B57;">Green - The Thinker</span>
+              <span class="color-badge" style="background: #FF8C00;">Orange - The Doer</span>
+              <span class="color-badge" style="background: #4169E1;">Blue - The Connector</span>
+            </div>
+            <p style="margin-top: 16px;"><strong>Time:</strong> 10-15 minutes | <strong>Questions:</strong> 20</p>
+          </div>
+        </div>
+
+        <!-- Candidate Info -->
+        <div class="candidate-form">
+          <h3>Candidate Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="candidate-name">Name *</label>
+              <input type="text" id="candidate-name" required>
+            </div>
+            <div class="form-group">
+              <label for="candidate-email">Email</label>
+              <input type="email" id="candidate-email">
+            </div>
+          </div>
+        </div>
+
+        <!-- Assessment Questions -->
+        <div class="assessment-questions" id="assessment-questions">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Assessment Actions -->
+        <div class="assessment-actions">
+          <button class="btn-primary" onclick="submitAssessment()">Submit Assessment</button>
+          <button class="btn-secondary" onclick="resetAssessment()">Reset</button>
+        </div>
+
+        <!-- Assessment Results -->
+        <div class="assessment-results" id="assessment-results" style="display: none;">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Scenarios Tab -->
+      <section id="scenarios" class="tab-content">
+        <div class="section-header">
+          <h2>In-Home Family Services Scenarios</h2>
+          <p>Demonstrate your thinking through real-world situations</p>
+        </div>
+
+        <!-- Scenarios Info -->
+        <div class="assessment-info">
+          <div class="info-card">
+            <h3>About These Scenarios</h3>
+            <p>These scenarios present realistic situations you may encounter as a Family Life Specialist doing in-home family services. Read each scenario carefully and provide thoughtful responses.</p>
+            <p style="margin-top: 12px;"><strong>There are no "right" answers</strong> - we want to understand how you think through complex situations involving trauma, addiction, crisis, and family dynamics.</p>
+            <p style="margin-top: 12px;"><strong>Time:</strong> 45-60 minutes | <strong>Scenarios:</strong> 6</p>
+          </div>
+        </div>
+
+        <!-- Candidate Info for Scenarios -->
+        <div class="candidate-form">
+          <h3>Your Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="scenario-candidate-name">Name *</label>
+              <input type="text" id="scenario-candidate-name" required>
+            </div>
+            <div class="form-group">
+              <label for="scenario-candidate-email">Email</label>
+              <input type="email" id="scenario-candidate-email">
+            </div>
+          </div>
+        </div>
+
+        <!-- Scenarios Container -->
+        <div class="scenarios-container" id="scenarios-container">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Scenario Actions -->
+        <div class="assessment-actions">
+          <button class="btn-primary" onclick="submitScenarios()">Submit Scenario Responses</button>
+          <button class="btn-secondary" onclick="resetScenarios()">Reset All</button>
+        </div>
+
+        <!-- Scenario Submission Result -->
+        <div class="scenario-results" id="scenario-results" style="display: none;">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Interview Evaluation Tab -->
+      <section id="interview" class="tab-content">
+        <div class="section-header">
+          <h2>Interviewer Evaluation Form</h2>
+          <p>For Hiring Team Use During/After Interview</p>
+        </div>
+
+        <!-- Evaluation Framework -->
+        <div class="framework-info">
+          <div class="framework-card green">
+            <h4>Green Flags to Look For</h4>
+            <ul id="green-flags-list"></ul>
+          </div>
+          <div class="framework-card red">
+            <h4>Red Flags to Watch</h4>
+            <ul id="red-flags-list"></ul>
+          </div>
+        </div>
+
+        <!-- Interview Form -->
+        <div class="interview-form">
+          <!-- Candidate & Interviewer Info -->
+          <div class="form-section">
+            <h3>Interview Information</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="interview-candidate-name">Candidate Name *</label>
+                <input type="text" id="interview-candidate-name" required>
+              </div>
+              <div class="form-group">
+                <label for="interviewer-name">Interviewer Name *</label>
+                <input type="text" id="interviewer-name" required>
+              </div>
+              <div class="form-group">
+                <label for="position-applied">Position Applied For</label>
+                <input type="text" id="position-applied" value="Family Life Specialist">
+              </div>
+            </div>
+          </div>
+
+          <!-- Interview Sections -->
+          <div id="interview-sections">
+            <!-- Populated by JavaScript -->
+          </div>
+
+          <!-- Flags Selection -->
+          <div class="form-section">
+            <h3>Observed Indicators</h3>
+            <div class="flags-selection">
+              <div class="flags-column">
+                <h4>Green Flags Observed</h4>
+                <div id="green-flags-checkboxes"></div>
+              </div>
+              <div class="flags-column">
+                <h4>Red Flags Observed</h4>
+                <div id="red-flags-checkboxes"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Final Decision -->
+          <div class="form-section">
+            <h3>Final Decision</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="overall-score">Overall Interview Score (1-10) *</label>
+                <input type="number" id="overall-score" min="1" max="10" required>
+              </div>
+              <div class="form-group">
+                <label for="recommendation">Recommendation *</label>
+                <select id="recommendation" required>
+                  <option value="">Select...</option>
+                  <option value="strong_yes">Strong Yes - Highly recommend hiring</option>
+                  <option value="yes">Yes - Recommend hiring</option>
+                  <option value="maybe">Maybe - Need reference check/second opinion</option>
+                  <option value="no">No - Do not recommend hiring</option>
+                  <option value="strong_no">Strong No - Significant concerns</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="decision-rationale">Rationale for Decision *</label>
+              <textarea id="decision-rationale" rows="4" required placeholder="Provide detailed reasoning for your recommendation..."></textarea>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="interview-actions">
+            <button class="btn-primary" onclick="submitInterview()">Submit Evaluation</button>
+            <button class="btn-secondary" onclick="calculateDecisionPreview()">Preview Decision</button>
+            <button class="btn-secondary" onclick="resetInterview()">Reset Form</button>
+          </div>
+        </div>
+
+        <!-- Decision Preview -->
+        <div class="decision-preview" id="decision-preview" style="display: none;">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Interview Templates -->
+        <div class="templates-section">
+          <h3>Interview Question Templates</h3>
+          <p style="margin-bottom: 16px; color: var(--gray-600);">Reference questions to ask candidates during the interview</p>
+          <div class="templates-accordion" id="question-templates">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Epworth Family Resources | Interview & Assessment Intelligence</p>
+      <p class="footer-small">Southeast Nebraska: Gage, Saline, Fillmore, Seward, Jefferson, Polk, Butler, York Counties</p>
+    </footer>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
