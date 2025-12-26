@@ -1,16 +1,16 @@
 /* ===================================
-   Epworth Village Integrated Assistant
+   Epworth Family Resources Interview Assistant
    Main Stylesheet
    =================================== */
 
 :root {
-  /* Colors - Purple theme for Epworth */
-  --primary: #6b46c1;
-  --primary-light: #9f7aea;
-  --primary-dark: #553c9a;
-  --secondary: #38a169;
-  --secondary-light: #68d391;
-  --accent: #ed8936;
+  /* Colors - Epworth Family Resources Brand */
+  --primary: #1E4D8C;
+  --primary-light: #5B8DBE;
+  --primary-dark: #153A6B;
+  --secondary: #E8893A;
+  --secondary-light: #F4A663;
+  --accent: #E8893A;
   
   /* Semantic colors */
   --success: #38a169;
@@ -154,6 +154,15 @@ ul, ol {
   justify-content: center;
   font-weight: 700;
   font-size: 1.25rem;
+}
+
+.logo-image {
+  height: 55px;
+  width: auto;
+  object-fit: contain;
+  background: white;
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
 }
 
 .logo-text h1 {

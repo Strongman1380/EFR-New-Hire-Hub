@@ -1,5 +1,5 @@
 /**
- * Epworth Village Integrated Assistant
+ * Epworth Family Resources Interview Assistant
  * Main Application JavaScript
  */
 

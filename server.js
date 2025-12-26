@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
-    system: 'Epworth Village Integrated Assistant',
+    system: 'Epworth Family Resources Interview Assistant',
     version: '1.0.0',
     timestamp: new Date().toISOString()
   });
@@ -50,7 +50,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`
 ╔═══════════════════════════════════════════════════════════╗
-║     Epworth Village Integrated Assistant                   ║
+║     Epworth Family Resources Interview Assistant           ║
 ║     Interview & Assessment Intelligence                    ║
 ╠═══════════════════════════════════════════════════════════╣
 ║  Server running on http://localhost:${PORT}                    ║

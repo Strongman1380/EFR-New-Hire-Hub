@@ -137,7 +137,7 @@ async function sendAssessmentNotification(data) {
         </div>
 
         <div class="footer">
-          <p>Epworth Village Interview Assistant</p>
+          <p>Epworth Family Resources Interview Assistant</p>
           <p>This is an automated notification. View full details in your Google Sheet.</p>
         </div>
       </div>
@@ -228,7 +228,7 @@ async function sendScenarioNotification(data) {
         </div>
 
         <div class="footer">
-          <p>Epworth Village Interview Assistant</p>
+          <p>Epworth Family Resources Interview Assistant</p>
           <p>Review responses during the interview to discuss their thinking.</p>
         </div>
       </div>
@@ -352,7 +352,7 @@ async function sendInterviewNotification(data) {
         </div>
 
         <div class="footer">
-          <p>Epworth Village Interview Assistant</p>
+          <p>Epworth Family Resources Interview Assistant</p>
           <p>View full details in your Google Sheet.</p>
         </div>
       </div>
