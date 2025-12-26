@@ -1118,6 +1118,89 @@ ul, ol {
 }
 
 /* ===================================
+   PIN Protection Modal
+   =================================== */
+
+.pin-modal-content {
+  max-width: 400px;
+  text-align: center;
+}
+
+.pin-modal-body {
+  padding: var(--spacing-md);
+}
+
+.pin-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.pin-modal-body h3 {
+  color: var(--primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.pin-modal-body > p {
+  color: var(--gray-600);
+  margin-bottom: var(--spacing-lg);
+  font-size: 0.9rem;
+}
+
+.pin-input-container {
+  margin-bottom: var(--spacing-lg);
+}
+
+#pin-input {
+  width: 100%;
+  padding: var(--spacing-md);
+  font-size: 1.5rem;
+  text-align: center;
+  letter-spacing: 0.5rem;
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.2s ease;
+}
+
+#pin-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 77, 140, 0.1);
+}
+
+.pin-error {
+  color: var(--danger);
+  font-weight: 500;
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: #fee2e2;
+  border-radius: var(--radius-md);
+  animation: fadeIn 0.3s ease;
+}
+
+.pin-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+.pin-actions .btn-primary,
+.pin-actions .btn-secondary {
+  min-width: 120px;
+}
+
+/* Shake animation for wrong PIN */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+  animation: shake 0.5s ease;
+  border-color: var(--danger) !important;
+}
+
+/* ===================================
    Loading State
    =================================== */
 

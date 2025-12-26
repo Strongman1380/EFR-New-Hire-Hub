@@ -11,6 +11,12 @@ let assessmentQuestions = [];
 let scenarios = [];
 let interviewForm = null;
 
+// PIN Protection State
+const INTERVIEWER_PIN = '8853';
+const PROTECTED_TABS = ['questionnaire', 'interview'];
+let unlockedTabs = [];
+let pendingTabId = null;
+
 // Color definitions for True Colors
 const TRUE_COLORS = {
   gold: { name: 'Gold', color: '#D4AF37', tagline: 'The Responsible Planner' },
@@ -40,12 +46,25 @@ function initializeTabs() {
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       const tabId = tab.dataset.tab;
+
+      // Check if tab requires PIN protection
+      if (PROTECTED_TABS.includes(tabId) && !unlockedTabs.includes(tabId)) {
+        showPinModal(tabId);
+        return;
+      }
+
       showTab(tabId);
     });
   });
 }
 
 function showTab(tabId) {
+  // Check if tab requires PIN protection
+  if (PROTECTED_TABS.includes(tabId) && !unlockedTabs.includes(tabId)) {
+    showPinModal(tabId);
+    return;
+  }
+
   // Update tab buttons
   document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.classList.toggle('active', tab.dataset.tab === tabId);
@@ -56,6 +75,80 @@ function showTab(tabId) {
     content.classList.toggle('active', content.id === tabId);
   });
 }
+
+// ===================================
+// PIN Protection
+// ===================================
+
+function showPinModal(tabId) {
+  pendingTabId = tabId;
+  const modal = document.getElementById('pin-modal');
+  const pinInput = document.getElementById('pin-input');
+  const pinError = document.getElementById('pin-error');
+
+  // Reset modal state
+  pinInput.value = '';
+  pinError.style.display = 'none';
+
+  modal.classList.add('open');
+  pinInput.focus();
+}
+
+function closePinModal() {
+  const modal = document.getElementById('pin-modal');
+  modal.classList.remove('open');
+  pendingTabId = null;
+}
+
+function verifyPin() {
+  const pinInput = document.getElementById('pin-input');
+  const pinError = document.getElementById('pin-error');
+  const enteredPin = pinInput.value;
+
+  if (enteredPin === INTERVIEWER_PIN) {
+    // PIN correct - unlock the tab
+    if (pendingTabId && !unlockedTabs.includes(pendingTabId)) {
+      unlockedTabs.push(pendingTabId);
+    }
+    closePinModal();
+
+    // Now show the tab
+    if (pendingTabId) {
+      // Update tab buttons
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === pendingTabId);
+      });
+
+      // Update tab content
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.toggle('active', content.id === pendingTabId);
+      });
+    }
+
+    showAlert('success', 'Access granted. Welcome, interviewer!');
+  } else {
+    // PIN incorrect - show error
+    pinError.style.display = 'block';
+    pinInput.value = '';
+    pinInput.focus();
+
+    // Shake animation
+    pinInput.classList.add('shake');
+    setTimeout(() => pinInput.classList.remove('shake'), 500);
+  }
+}
+
+// Handle Enter key in PIN input
+document.addEventListener('DOMContentLoaded', () => {
+  const pinInput = document.getElementById('pin-input');
+  if (pinInput) {
+    pinInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        verifyPin();
+      }
+    });
+  }
+});
 
 // ===================================
 // Dashboard

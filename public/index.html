@@ -412,6 +412,28 @@
     </div>
   </div>
 
+  <!-- PIN Protection Modal -->
+  <div class="modal" id="pin-modal">
+    <div class="modal-content pin-modal-content">
+      <span class="modal-close" onclick="closePinModal()">&times;</span>
+      <div class="pin-modal-body">
+        <div class="pin-icon">🔒</div>
+        <h3>Interviewer Access Required</h3>
+        <p>This section is restricted to interviewers only. Please enter your PIN to continue.</p>
+        <div class="pin-input-container">
+          <input type="password" id="pin-input" maxlength="4" placeholder="Enter 4-digit PIN" autocomplete="off">
+          <div class="pin-error" id="pin-error" style="display: none;">
+            Incorrect PIN. Access denied.
+          </div>
+        </div>
+        <div class="pin-actions">
+          <button class="btn-primary" onclick="verifyPin()">Unlock</button>
+          <button class="btn-secondary" onclick="closePinModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="js/app.js"></script>
 </body>
 </html>
