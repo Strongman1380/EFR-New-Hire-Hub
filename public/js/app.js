@@ -412,17 +412,17 @@ function renderScenarios(scenarioList) {
       </div>
 
       <div class="scenario-context">
-        <p><strong>Background:</strong> ${scenario.context}</p>
-        <p style="margin-top: 12px;">${scenario.situation}</p>
+        <p><strong>Situation:</strong></p>
+        <p style="margin-top: 8px; white-space: pre-line;">${scenario.situation}</p>
       </div>
 
       <div class="scenario-questions">
         ${scenario.questions.map((q, qIndex) => `
           <div class="scenario-question">
             <label for="scenario_${scenario.id}_q${qIndex + 1}">
-              <strong>Question ${qIndex + 1}:</strong> ${q.question}
+              <strong>Question ${qIndex + 1}:</strong> ${q.text}
             </label>
-            ${q.guidance ? `<p class="question-guidance">${q.guidance}</p>` : ''}
+            ${q.guidance ? `<p class="question-guidance"><em>Consider: ${q.guidance}</em></p>` : ''}
             <textarea
               id="scenario_${scenario.id}_q${qIndex + 1}"
               rows="4"
