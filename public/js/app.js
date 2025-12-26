@@ -813,6 +813,11 @@ async function loadQuestionnaire() {
 function renderQuestionnaire(templates) {
   const container = document.getElementById('questionnaire-container');
 
+  if (!container) {
+    console.warn('Questionnaire container not found - element may not exist in DOM');
+    return;
+  }
+
   const sections = [
     { id: 'opening', name: 'Opening Questions', description: 'First impressions and introduction', color: '#6366f1' },
     { id: 'experience', name: 'Experience Questions', description: 'Background and work history', color: '#0891b2' },
