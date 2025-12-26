@@ -12,6 +12,7 @@
 
 const express = require('express');
 const router = express.Router();
+const { sendScenarioNotification } = require('../integrations/email');
 
 // Scenario Definitions - In-Home Family Services Only
 const SCENARIOS = [
@@ -518,10 +519,14 @@ router.post('/submit', (req, res) => {
     };
   });
 
+  const submissionId = `SCEN-${Date.now()}`;
+  const submittedAt = new Date().toISOString();
+
   const result = {
     success: true,
-    submissionId: `SCEN-${Date.now()}`,
-    timestamp: new Date().toISOString(),
+    submissionId,
+    submittedAt,
+    timestamp: submittedAt,
     candidate: {
       name: candidateName,
       email: candidateEmail || null
@@ -538,6 +543,18 @@ router.post('/submit', (req, res) => {
       notes: ''
     }))
   };
+
+  // Send email notification (async, don't block response)
+  sendScenarioNotification({
+    candidateName,
+    candidateEmail,
+    submissionId,
+    submittedAt,
+    responses: organizedResponses,
+    scenarios: SCENARIOS
+  }).catch(err => {
+    console.error('Scenario email notification failed:', err);
+  });
 
   res.json(result);
 });

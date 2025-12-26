@@ -11,6 +11,7 @@
 
 const express = require('express');
 const router = express.Router();
+const { sendInterviewNotification } = require('../integrations/email');
 
 // Evaluation Scale
 const EVALUATION_SCALE = {
@@ -579,6 +580,25 @@ router.post('/submit', (req, res) => {
     rationale: decision.rationale,
     nextSteps: decision.nextSteps || decisionAnalysis.nextSteps || []
   };
+
+  // Send email notification
+  sendInterviewNotification({
+    candidateInfo: {
+      name: candidateInfo.name,
+      position: candidateInfo.position || 'In-Home Family Specialist',
+      interviewer: interviewerInfo.name
+    },
+    decision: {
+      recommendation: decision.recommendation,
+      overallScore: decision.overallScore,
+      rationale: decision.rationale,
+      greenFlags: report.flags.green.map(f => f.label),
+      redFlags: report.flags.red.map(f => f.label)
+    },
+    report
+  }).catch(err => {
+    console.error('Interview email notification failed:', err);
+  });
 
   res.json({
     success: true,

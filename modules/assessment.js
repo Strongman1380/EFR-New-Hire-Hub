@@ -11,6 +11,53 @@
 
 const express = require('express');
 const router = express.Router();
+const { sendAssessmentNotification } = require('../integrations/email');
+const http = require('http');
+
+// Helper function to save assessment to Google Sheets
+async function saveToGoogleSheets(result) {
+  const data = JSON.stringify({
+    candidateName: result.candidate.name,
+    candidateEmail: result.candidate.email,
+    primaryColor: result.candidateResults.primaryColor.name,
+    secondaryColor: result.candidateResults.secondaryColor.name,
+    colorScores: {
+      gold: result.interviewerReport.colorProfile.find(c => c.color === 'Gold')?.percentage || 0,
+      green: result.interviewerReport.colorProfile.find(c => c.color === 'Green')?.percentage || 0,
+      orange: result.interviewerReport.colorProfile.find(c => c.color === 'Orange')?.percentage || 0,
+      blue: result.interviewerReport.colorProfile.find(c => c.color === 'Blue')?.percentage || 0
+    }
+  });
+
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: 'localhost',
+      port: process.env.PORT || 3000,
+      path: '/api/sheets/assessments',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(data)
+      }
+    };
+
+    const req = http.request(options, res => {
+      let body = '';
+      res.on('data', chunk => body += chunk);
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(body));
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.write(data);
+    req.end();
+  });
+}
 
 // True Colors Definitions
 const TRUE_COLORS = {
@@ -655,6 +702,16 @@ router.post('/submit', (req, res) => {
     // Interviewer sees this (more detailed)
     interviewerReport
   };
+
+  // Send email notification (async, don't block response)
+  sendAssessmentNotification(result).catch(err => {
+    console.error('Email notification failed:', err);
+  });
+
+  // Save to Google Sheets (async, don't block response)
+  saveToGoogleSheets(result).catch(err => {
+    console.error('Google Sheets save failed:', err);
+  });
 
   res.json(result);
 });

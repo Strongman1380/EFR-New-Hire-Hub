@@ -25,3 +25,4 @@ Thumbs.db
 # Google credentials
 credentials.json
 service-account.json
+.vercel

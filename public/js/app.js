@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadAssessmentQuestions();
   loadScenarios();
   loadInterviewForm();
+  loadQuestionnaire();
 });
 
 // ===================================
@@ -96,18 +97,22 @@ async function loadAssessmentQuestions() {
 function renderAssessmentQuestions(questions) {
   const container = document.getElementById('assessment-questions');
 
-  container.innerHTML = questions.map((q, index) => `
+  // Shuffle options for each question so colors aren't always in same order
+  const shuffledQuestions = questions.map(q => ({
+    ...q,
+    options: shuffleArray([...q.options])
+  }));
+
+  container.innerHTML = shuffledQuestions.map((q, index) => `
     <div class="question-card" data-question-id="${q.id}">
       <h4>Question ${index + 1} of ${questions.length}</h4>
       <p class="question-text">${q.text}</p>
-      <div class="question-options color-options">
-        ${q.options.map(opt => `
-          <label class="option-label color-option" style="border-left: 4px solid ${TRUE_COLORS[opt.color].color};">
-            <input type="radio" name="q_${q.id}" value="${opt.color}" data-color="${opt.color}">
-            <div class="option-content">
-              <span class="color-badge-small" style="background: ${TRUE_COLORS[opt.color].color};">${TRUE_COLORS[opt.color].name}</span>
-              <span class="option-text">${opt.text}</span>
-            </div>
+      <div class="question-options">
+        ${q.options.map((opt, optIndex) => `
+          <label class="option-label">
+            <input type="radio" name="q_${q.id}" value="${opt.value}" data-color="${opt.value}">
+            <span class="option-letter">${String.fromCharCode(65 + optIndex)}</span>
+            <span class="option-text">${opt.label}</span>
           </label>
         `).join('')}
       </div>
@@ -173,14 +178,21 @@ async function submitAssessment() {
 
       // Save to Google Sheets if connected
       try {
+        // Build color scores object from spectrum
+        const colorScores = {};
+        data.candidateResults.colorSpectrum.forEach(c => {
+          colorScores[c.name.toLowerCase()] = c.percentage;
+        });
+
         await fetch(`${API_BASE}/sheets/assessments`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             candidateName,
-            primaryColor: data.candidateReport.primaryColor.name,
-            secondaryColor: data.candidateReport.secondaryColor.name,
-            colorScores: data.candidateReport.colorScores
+            candidateEmail,
+            primaryColor: data.candidateResults.primaryColor.name,
+            secondaryColor: data.candidateResults.secondaryColor.name,
+            colorScores
           })
         });
       } catch (e) {
@@ -197,7 +209,7 @@ async function submitAssessment() {
 
 function renderAssessmentResults(data) {
   const container = document.getElementById('assessment-results');
-  const report = data.candidateReport;
+  const report = data.candidateResults;
   const primary = report.primaryColor;
   const secondary = report.secondaryColor;
 
@@ -227,14 +239,14 @@ function renderAssessmentResults(data) {
     <div class="color-scores-chart" style="margin: 24px 0;">
       <h4>Your Color Distribution</h4>
       <div class="scores-bars">
-        ${Object.entries(report.colorScores).sort((a, b) => b[1] - a[1]).map(([color, score]) => `
+        ${report.colorSpectrum.map(colorData => `
           <div class="score-bar-item" style="margin: 12px 0;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span style="font-weight: 500;">${TRUE_COLORS[color].name}</span>
-              <span>${score} points</span>
+              <span style="font-weight: 500;">${colorData.name}</span>
+              <span>${colorData.percentage}%</span>
             </div>
             <div style="background: var(--gray-200); border-radius: 4px; height: 24px; overflow: hidden;">
-              <div style="background: ${TRUE_COLORS[color].color}; height: 100%; width: ${(score / 20) * 100}%; transition: width 0.5s ease;"></div>
+              <div style="background: ${colorData.color}; height: 100%; width: ${colorData.percentage}%; transition: width 0.5s ease;"></div>
             </div>
           </div>
         `).join('')}
@@ -243,24 +255,14 @@ function renderAssessmentResults(data) {
 
     <div class="results-sections">
       <div class="results-section">
-        <h4>Your Strengths</h4>
-        <ul>
-          ${report.strengths.map(s => `<li>${s}</li>`).join('')}
-        </ul>
+        <h4>What This Means For You</h4>
+        <p style="margin-bottom: 12px;">As a <strong>${primary.name}</strong>, you naturally bring ${primary.tagline.toLowerCase().replace('the ', '')} qualities to your work.</p>
+        <p>Your secondary <strong>${secondary.name}</strong> adds ${secondary.tagline.toLowerCase().replace('the ', '')} tendencies that complement your primary style.</p>
       </div>
 
       <div class="results-section">
-        <h4>Work Style</h4>
-        <ul>
-          ${report.workStyle.map(w => `<li>${w}</li>`).join('')}
-        </ul>
-      </div>
-
-      <div class="results-section">
-        <h4>Communication Tips</h4>
-        <ul>
-          ${report.communicationTips.map(c => `<li>${c}</li>`).join('')}
-        </ul>
+        <h4>In Family Services Work</h4>
+        <p>Your ${primary.name} nature means you'll likely excel at building trust with families through your natural approach. Your blend with ${secondary.name} gives you additional versatility.</p>
       </div>
     </div>
 
@@ -789,8 +791,323 @@ function resetInterview() {
 }
 
 // ===================================
+// Interview Questionnaire
+// ===================================
+
+let questionnaireData = null;
+
+async function loadQuestionnaire() {
+  try {
+    const response = await fetch(`${API_BASE}/interview/templates/questions`);
+    const data = await response.json();
+
+    if (data.success) {
+      questionnaireData = data.templates;
+      renderQuestionnaire(data.templates);
+    }
+  } catch (error) {
+    console.error('Failed to load questionnaire:', error);
+  }
+}
+
+function renderQuestionnaire(templates) {
+  const container = document.getElementById('questionnaire-container');
+
+  const sections = [
+    { id: 'opening', name: 'Opening Questions', description: 'First impressions and introduction', color: '#6366f1' },
+    { id: 'experience', name: 'Experience Questions', description: 'Background and work history', color: '#0891b2' },
+    { id: 'values', name: 'Values & Mission Fit', description: 'Alignment with Epworth core values', color: '#059669' },
+    { id: 'closing', name: 'Closing Questions', description: 'Final assessment and next steps', color: '#7c3aed' }
+  ];
+
+  container.innerHTML = sections.map(section => {
+    const questions = templates[section.id] || [];
+
+    return `
+      <div class="questionnaire-section" data-section="${section.id}">
+        <div class="questionnaire-section-header" style="border-left: 4px solid ${section.color};">
+          <h3 style="color: ${section.color};">${section.name}</h3>
+          <p>${section.description}</p>
+          <span class="question-count">${questions.length} questions</span>
+        </div>
+
+        <div class="questionnaire-questions">
+          ${questions.map((q, index) => `
+            <div class="questionnaire-item" data-question-id="${section.id}_q${index + 1}">
+              <div class="questionnaire-item-header">
+                <span class="question-number">${index + 1}</span>
+                <p class="question-text">${q}</p>
+              </div>
+
+              <div class="questionnaire-rating">
+                <span class="rating-label">Rating:</span>
+                <div class="rating-buttons">
+                  <label class="rating-btn concern">
+                    <input type="radio" name="${section.id}_q${index + 1}_rating" value="1">
+                    <span>1</span>
+                    <small>Concern</small>
+                  </label>
+                  <label class="rating-btn adequate">
+                    <input type="radio" name="${section.id}_q${index + 1}_rating" value="2">
+                    <span>2</span>
+                    <small>Adequate</small>
+                  </label>
+                  <label class="rating-btn strong">
+                    <input type="radio" name="${section.id}_q${index + 1}_rating" value="3">
+                    <span>3</span>
+                    <small>Strong</small>
+                  </label>
+                  <label class="rating-btn skip">
+                    <input type="radio" name="${section.id}_q${index + 1}_rating" value="0">
+                    <span>-</span>
+                    <small>Skip</small>
+                  </label>
+                </div>
+              </div>
+
+              <div class="questionnaire-notes">
+                <label for="${section.id}_q${index + 1}_notes">Notes / Candidate Response Summary:</label>
+                <textarea
+                  id="${section.id}_q${index + 1}_notes"
+                  rows="3"
+                  placeholder="Capture key points from the candidate's answer..."
+                ></textarea>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Add event listeners for rating button styling
+  container.querySelectorAll('.rating-btn input').forEach(radio => {
+    radio.addEventListener('change', function() {
+      const ratingGroup = this.closest('.rating-buttons');
+      ratingGroup.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
+      this.closest('.rating-btn').classList.add('selected');
+    });
+  });
+}
+
+function calculateQuestionnaireSummary() {
+  const candidateName = document.getElementById('questionnaire-candidate-name').value;
+
+  if (!candidateName) {
+    showAlert('warning', 'Please enter the candidate name');
+    return;
+  }
+
+  const sections = ['opening', 'experience', 'values', 'closing'];
+  const sectionNames = {
+    opening: 'Opening',
+    experience: 'Experience',
+    values: 'Values',
+    closing: 'Closing'
+  };
+
+  const results = {};
+  let totalScore = 0;
+  let totalQuestions = 0;
+
+  sections.forEach(section => {
+    const questions = document.querySelectorAll(`[data-section="${section}"] .questionnaire-item`);
+    let sectionScore = 0;
+    let sectionAnswered = 0;
+
+    questions.forEach(item => {
+      const rating = item.querySelector('input[type="radio"]:checked');
+      if (rating && rating.value !== '0') {
+        sectionScore += parseInt(rating.value);
+        sectionAnswered++;
+      }
+    });
+
+    results[section] = {
+      name: sectionNames[section],
+      answered: sectionAnswered,
+      total: questions.length,
+      score: sectionScore,
+      average: sectionAnswered > 0 ? (sectionScore / sectionAnswered).toFixed(2) : 'N/A'
+    };
+
+    totalScore += sectionScore;
+    totalQuestions += sectionAnswered;
+  });
+
+  const overallAverage = totalQuestions > 0 ? (totalScore / totalQuestions).toFixed(2) : 'N/A';
+  const overallRating = totalQuestions > 0 ?
+    (overallAverage >= 2.5 ? 'Strong' : overallAverage >= 1.5 ? 'Adequate' : 'Concern') : 'N/A';
+
+  const container = document.getElementById('questionnaire-summary');
+  container.innerHTML = `
+    <h3>Interview Summary for ${candidateName}</h3>
+
+    <div class="summary-overall" style="background: ${overallRating === 'Strong' ? '#dcfce7' : overallRating === 'Adequate' ? '#fef3c7' : overallRating === 'Concern' ? '#fee2e2' : '#f3f4f6'};
+         border: 2px solid ${overallRating === 'Strong' ? '#22c55e' : overallRating === 'Adequate' ? '#f59e0b' : overallRating === 'Concern' ? '#ef4444' : '#9ca3af'};
+         padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
+      <div style="font-size: 3rem; font-weight: 700; color: ${overallRating === 'Strong' ? '#22c55e' : overallRating === 'Adequate' ? '#f59e0b' : overallRating === 'Concern' ? '#ef4444' : '#6b7280'};">
+        ${overallAverage}
+      </div>
+      <div style="font-size: 1.25rem; font-weight: 600;">Overall Average: ${overallRating}</div>
+      <div style="color: var(--gray-600); margin-top: 8px;">${totalQuestions} questions rated</div>
+    </div>
+
+    <div class="summary-sections" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+      ${sections.map(section => {
+        const data = results[section];
+        const rating = data.average !== 'N/A' ?
+          (parseFloat(data.average) >= 2.5 ? 'Strong' : parseFloat(data.average) >= 1.5 ? 'Adequate' : 'Concern') : 'N/A';
+        const color = rating === 'Strong' ? '#22c55e' : rating === 'Adequate' ? '#f59e0b' : rating === 'Concern' ? '#ef4444' : '#6b7280';
+
+        return `
+          <div class="summary-section-card" style="background: white; padding: 16px; border-radius: 8px; border-left: 4px solid ${color};">
+            <h4 style="margin: 0 0 8px 0;">${data.name}</h4>
+            <div style="font-size: 1.5rem; font-weight: 700; color: ${color};">${data.average}</div>
+            <div style="font-size: 0.875rem; color: var(--gray-500);">${data.answered}/${data.total} rated</div>
+            <div style="font-size: 0.75rem; color: ${color}; font-weight: 500; margin-top: 4px;">${rating}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    <div style="margin-top: 20px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
+      <p style="margin: 0; font-size: 0.875rem; color: var(--gray-600);">
+        <strong>Note:</strong> This is a preview summary. Submit the questionnaire to save all responses and notes to Google Sheets.
+      </p>
+    </div>
+  `;
+
+  container.style.display = 'block';
+  container.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function submitQuestionnaire() {
+  const candidateName = document.getElementById('questionnaire-candidate-name').value;
+  const interviewerName = document.getElementById('questionnaire-interviewer-name').value;
+  const position = document.getElementById('questionnaire-position').value;
+
+  if (!candidateName || !interviewerName) {
+    showAlert('warning', 'Please enter candidate and interviewer names');
+    return;
+  }
+
+  // Collect all responses
+  const sections = ['opening', 'experience', 'values', 'closing'];
+  const responses = {};
+  let totalScore = 0;
+  let totalQuestions = 0;
+
+  sections.forEach(section => {
+    responses[section] = [];
+    const questions = document.querySelectorAll(`[data-section="${section}"] .questionnaire-item`);
+
+    questions.forEach((item, index) => {
+      const rating = item.querySelector('input[type="radio"]:checked');
+      const notes = item.querySelector('textarea').value.trim();
+      const questionText = item.querySelector('.question-text').textContent;
+
+      const ratingValue = rating ? parseInt(rating.value) : null;
+
+      if (ratingValue && ratingValue > 0) {
+        totalScore += ratingValue;
+        totalQuestions++;
+      }
+
+      responses[section].push({
+        questionNumber: index + 1,
+        question: questionText,
+        rating: ratingValue,
+        notes: notes
+      });
+    });
+  });
+
+  const overallAverage = totalQuestions > 0 ? (totalScore / totalQuestions) : 0;
+
+  try {
+    // Save to Google Sheets
+    await fetch(`${API_BASE}/sheets/interviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        candidateName,
+        interviewerName,
+        overallScore: Math.round(overallAverage * 3.33), // Convert to 1-10 scale
+        recommendation: overallAverage >= 2.5 ? 'yes' : overallAverage >= 1.5 ? 'maybe' : 'no',
+        sectionScores: {
+          opening: { average: calculateSectionAverage(responses.opening) },
+          experience: { average: calculateSectionAverage(responses.experience) },
+          values: { average: calculateSectionAverage(responses.values) },
+          closing: { average: calculateSectionAverage(responses.closing) }
+        },
+        notes: `Interview questionnaire completed. Overall average: ${overallAverage.toFixed(2)}/3`
+      })
+    });
+
+    showAlert('success', 'Questionnaire submitted successfully!');
+
+    // Show success modal
+    showModal(`
+      <h3>Questionnaire Submitted</h3>
+      <p><strong>Candidate:</strong> ${candidateName}</p>
+      <p><strong>Interviewer:</strong> ${interviewerName}</p>
+      <p><strong>Position:</strong> ${position}</p>
+      <p><strong>Overall Average:</strong> ${overallAverage.toFixed(2)}/3</p>
+      <p><strong>Questions Rated:</strong> ${totalQuestions}</p>
+      <p style="margin-top: 16px; color: var(--gray-600);">
+        The questionnaire has been saved. You can now proceed to the Evaluation tab for final decision.
+      </p>
+      <button class="btn-primary" style="margin-top: 16px;" onclick="closeModal(); showTab('interview');">
+        Go to Evaluation
+      </button>
+    `);
+  } catch (error) {
+    console.error('Questionnaire submission failed:', error);
+    showAlert('error', 'Failed to submit questionnaire');
+  }
+}
+
+function calculateSectionAverage(sectionResponses) {
+  const rated = sectionResponses.filter(r => r.rating && r.rating > 0);
+  if (rated.length === 0) return 0;
+  const total = rated.reduce((sum, r) => sum + r.rating, 0);
+  return (total / rated.length).toFixed(2);
+}
+
+function resetQuestionnaire() {
+  document.getElementById('questionnaire-candidate-name').value = '';
+  document.getElementById('questionnaire-interviewer-name').value = '';
+  document.getElementById('questionnaire-position').value = 'Family Life Specialist';
+
+  document.querySelectorAll('#questionnaire-container input[type="radio"]').forEach(radio => {
+    radio.checked = false;
+  });
+
+  document.querySelectorAll('#questionnaire-container textarea').forEach(textarea => {
+    textarea.value = '';
+  });
+
+  document.querySelectorAll('.rating-btn').forEach(btn => {
+    btn.classList.remove('selected');
+  });
+
+  document.getElementById('questionnaire-summary').style.display = 'none';
+}
+
+// ===================================
 // Utilities
 // ===================================
+
+// Fisher-Yates shuffle for randomizing options
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
 function showAlert(type, message) {
   // Create alert element

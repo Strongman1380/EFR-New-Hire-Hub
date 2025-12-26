@@ -12,9 +12,9 @@ const router = express.Router();
 // Sheet names for different modules
 const SHEET_NAMES = {
   CANDIDATES: 'Candidates',
-  ASSESSMENTS: 'Personality Assessments',
+  ASSESSMENTS: 'True Colors Assessments',
+  SCENARIOS: 'Scenario Responses',
   INTERVIEWS: 'Interview Evaluations',
-  RESOURCES: 'Resource Directory',
   DECISIONS: 'Hiring Decisions'
 };
 
@@ -159,53 +159,47 @@ router.post('/candidates', async (req, res) => {
   }
 });
 
-// Append assessment results
+// Append True Colors assessment results
 router.post('/assessments', async (req, res) => {
   try {
-    const { candidateId, candidateName, archetype, matchPercentage, dimensionScores, valuesAlignment } = req.body;
-    
-    if (!candidateName || !archetype) {
+    const { candidateName, candidateEmail, primaryColor, secondaryColor, colorScores } = req.body;
+
+    if (!candidateName || !primaryColor) {
       return res.status(400).json({
         success: false,
-        message: 'Candidate name and archetype are required'
+        message: 'Candidate name and primary color are required'
       });
     }
-    
+
     const sheets = await getGoogleSheetsClient();
     const timestamp = formatTimestamp();
-    const assessmentId = `ASM-${Date.now()}`;
-    
-    // Format dimension scores as string
-    const dimensionString = dimensionScores 
-      ? Object.entries(dimensionScores).map(([k, v]) => `${k}:${v.tendency}`).join('; ')
+    const assessmentId = `TC-${Date.now()}`;
+
+    // Format color scores
+    const scoresString = colorScores
+      ? `Gold:${colorScores.gold || 0}, Green:${colorScores.green || 0}, Orange:${colorScores.orange || 0}, Blue:${colorScores.blue || 0}`
       : '';
-    
-    // Format values alignment
-    const valuesString = valuesAlignment
-      ? Object.entries(valuesAlignment).map(([k, v]) => `${k}:${v.score}`).join('; ')
-      : '';
-    
+
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEETS_ID,
-      range: `${SHEET_NAMES.ASSESSMENTS}!A:H`,
+      range: `${SHEET_NAMES.ASSESSMENTS}!A:G`,
       valueInputOption: 'RAW',
       requestBody: {
         values: [[
           assessmentId,
           timestamp,
-          candidateId || '',
           candidateName,
-          archetype,
-          matchPercentage || '',
-          dimensionString,
-          valuesString
+          candidateEmail || '',
+          primaryColor,
+          secondaryColor || '',
+          scoresString
         ]]
       }
     });
-    
+
     res.json({
       success: true,
-      message: 'Assessment saved successfully',
+      message: 'True Colors assessment saved successfully',
       assessmentId,
       timestamp
     });
@@ -213,6 +207,74 @@ router.post('/assessments', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to save assessment',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Append scenario responses
+router.post('/scenarios', async (req, res) => {
+  try {
+    const { candidateName, candidateEmail, submissionId, responses } = req.body;
+
+    if (!candidateName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Candidate name is required'
+      });
+    }
+
+    const sheets = await getGoogleSheetsClient();
+    const timestamp = formatTimestamp();
+    const scenarioId = submissionId || `SCN-${Date.now()}`;
+
+    // Format responses - create a summary of each scenario
+    const responseSummary = responses
+      ? Object.entries(responses).map(([scenarioId, answers]) => {
+          const answerCount = Object.keys(answers).filter(k => answers[k]).length;
+          return `${scenarioId}: ${answerCount} answers`;
+        }).join('; ')
+      : '';
+
+    // Count total answered questions
+    let totalAnswered = 0;
+    let totalQuestions = 0;
+    if (responses) {
+      Object.values(responses).forEach(answers => {
+        Object.values(answers).forEach(answer => {
+          totalQuestions++;
+          if (answer && answer.trim()) totalAnswered++;
+        });
+      });
+    }
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+      range: `${SHEET_NAMES.SCENARIOS}!A:G`,
+      valueInputOption: 'RAW',
+      requestBody: {
+        values: [[
+          scenarioId,
+          timestamp,
+          candidateName,
+          candidateEmail || '',
+          `${totalAnswered}/${totalQuestions}`,
+          responseSummary,
+          'Pending Review'
+        ]]
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Scenario responses saved successfully',
+      scenarioId,
+      timestamp
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save scenarios',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -358,10 +420,10 @@ router.post('/initialize', async (req, res) => {
     // Headers for each sheet
     const sheetHeaders = {
       [SHEET_NAMES.CANDIDATES]: ['Candidate ID', 'Timestamp', 'Name', 'Email', 'Phone', 'Position', 'Source', 'Notes'],
-      [SHEET_NAMES.ASSESSMENTS]: ['Assessment ID', 'Timestamp', 'Candidate ID', 'Name', 'Archetype', 'Match %', 'Dimensions', 'Values Alignment'],
+      [SHEET_NAMES.ASSESSMENTS]: ['Assessment ID', 'Timestamp', 'Name', 'Email', 'Primary Color', 'Secondary Color', 'Color Scores'],
+      [SHEET_NAMES.SCENARIOS]: ['Submission ID', 'Timestamp', 'Name', 'Email', 'Completion', 'Summary', 'Review Status'],
       [SHEET_NAMES.INTERVIEWS]: ['Evaluation ID', 'Timestamp', 'Candidate ID', 'Name', 'Interviewer', 'Score', 'Recommendation', 'Section Scores', 'Red Flags', 'Green Flags', 'Notes', 'Date'],
-      [SHEET_NAMES.DECISIONS]: ['Decision ID', 'Timestamp', 'Candidate ID', 'Name', 'Position', 'Decision', 'Start Date', 'Salary', 'Notes', 'Decided By'],
-      [SHEET_NAMES.RESOURCES]: ['Resource ID', 'Name', 'Phone', 'Address', 'Category', 'Specialty', 'Counties', 'Hours', 'Website', 'Description']
+      [SHEET_NAMES.DECISIONS]: ['Decision ID', 'Timestamp', 'Candidate ID', 'Name', 'Position', 'Decision', 'Start Date', 'Salary', 'Notes', 'Decided By']
     };
     
     // Create sheets if they don't exist

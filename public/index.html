@@ -24,6 +24,7 @@
           <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
           <button class="nav-tab" data-tab="assessment">True Colors</button>
           <button class="nav-tab" data-tab="scenarios">Scenarios</button>
+          <button class="nav-tab" data-tab="questionnaire">Questionnaire</button>
           <button class="nav-tab" data-tab="interview">Evaluation</button>
         </nav>
       </div>
@@ -225,6 +226,64 @@
         <!-- Scenario Submission Result -->
         <div class="scenario-results" id="scenario-results" style="display: none;">
           <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Interview Questionnaire Tab -->
+      <section id="questionnaire" class="tab-content">
+        <div class="section-header">
+          <h2>Interview Questionnaire</h2>
+          <p>Use during the interview to capture responses and score each answer</p>
+        </div>
+
+        <!-- Questionnaire Info -->
+        <div class="assessment-info">
+          <div class="info-card">
+            <h3>How to Use This Questionnaire</h3>
+            <p>Ask the candidate each question, then capture their response in the notes field. Use the rating scale to score their answer:</p>
+            <div class="rating-legend" style="margin-top: 12px; display: flex; gap: 20px; flex-wrap: wrap;">
+              <span><strong style="color: #dc3545;">1 - Concern:</strong> Below expectations, raises questions</span>
+              <span><strong style="color: #ffc107;">2 - Adequate:</strong> Meets expectations, shows potential</span>
+              <span><strong style="color: #28a745;">3 - Strong:</strong> Exceeds expectations, clear competency</span>
+            </div>
+            <p style="margin-top: 12px;"><strong>Sections:</strong> Opening (6) | Experience (10) | Values (10) | Closing (6)</p>
+          </div>
+        </div>
+
+        <!-- Candidate Info for Questionnaire -->
+        <div class="candidate-form">
+          <h3>Interview Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="questionnaire-candidate-name">Candidate Name *</label>
+              <input type="text" id="questionnaire-candidate-name" required>
+            </div>
+            <div class="form-group">
+              <label for="questionnaire-interviewer-name">Interviewer Name *</label>
+              <input type="text" id="questionnaire-interviewer-name" required>
+            </div>
+            <div class="form-group">
+              <label for="questionnaire-position">Position Applied For</label>
+              <input type="text" id="questionnaire-position" value="Family Life Specialist">
+            </div>
+          </div>
+        </div>
+
+        <!-- Questionnaire Sections -->
+        <div id="questionnaire-container">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Questionnaire Summary -->
+        <div class="questionnaire-summary" id="questionnaire-summary" style="display: none;">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Questionnaire Actions -->
+        <div class="assessment-actions">
+          <button class="btn-primary" onclick="submitQuestionnaire()">Submit Questionnaire</button>
+          <button class="btn-secondary" onclick="calculateQuestionnaireSummary()">View Summary</button>
+          <button class="btn-secondary" onclick="resetQuestionnaire()">Reset All</button>
         </div>
       </section>
 
