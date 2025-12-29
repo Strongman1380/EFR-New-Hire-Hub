@@ -34,93 +34,126 @@
     <main class="main-content">
       <!-- Dashboard Tab -->
       <section id="dashboard" class="tab-content active">
-        <div class="section-header">
-          <h2>Dashboard</h2>
-          <p>Welcome to the Epworth Family Resources Interview Assistant</p>
-        </div>
-
-        <!-- Core Values -->
-        <div class="values-grid">
-          <div class="value-card">
-            <div class="value-icon">💜</div>
-            <h3>Trauma-Informed Care</h3>
-            <p>Understanding and responding to the impact of trauma</p>
-          </div>
-          <div class="value-card">
-            <div class="value-icon">👨‍👩‍👧‍👦</div>
-            <h3>Family Preservation</h3>
-            <p>Keeping families together safely when possible</p>
-          </div>
-          <div class="value-card">
-            <div class="value-icon">📈</div>
-            <h3>Professional Growth</h3>
-            <p>Continuous learning and development</p>
-          </div>
-          <div class="value-card">
-            <div class="value-icon">✅</div>
-            <h3>Accountability</h3>
-            <p>Taking responsibility for actions and outcomes</p>
-          </div>
-        </div>
-
-        <!-- Quick Stats -->
-        <div class="stats-grid">
-          <div class="stat-card" style="border-left: 4px solid #D4AF37;">
-            <div class="stat-number">4</div>
-            <div class="stat-label">True Colors</div>
-          </div>
-          <div class="stat-card" style="border-left: 4px solid #4169E1;">
-            <div class="stat-number">20</div>
-            <div class="stat-label">Assessment Questions</div>
-          </div>
-          <div class="stat-card" style="border-left: 4px solid #2E8B57;">
-            <div class="stat-number">6</div>
-            <div class="stat-label">In-Home Scenarios</div>
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-          <h3>Quick Actions</h3>
-          <div class="action-buttons">
-            <button class="action-btn" onclick="showTab('assessment')">
-              <span class="btn-icon">🎨</span>
-              True Colors Assessment
-            </button>
-            <button class="action-btn" onclick="showTab('scenarios')">
-              <span class="btn-icon">📖</span>
-              Scenario Responses
-            </button>
-            <button class="action-btn" onclick="showTab('interview')">
-              <span class="btn-icon">📋</span>
-              Interviewer Evaluation
-            </button>
-            <button class="action-btn" onclick="checkSheetsConnection()">
-              <span class="btn-icon">🔗</span>
-              Check Sheets Connection
-            </button>
-          </div>
-        </div>
-
-        <!-- Color Legend -->
-        <div class="color-legend">
-          <h3>True Colors Overview</h3>
-          <div class="colors-grid">
-            <div class="color-card" style="border-left: 5px solid #D4AF37;">
-              <h4 style="color: #D4AF37;">Gold</h4>
-              <p>Organized, responsible, structured, dependable</p>
+        <div class="dashboard-grid">
+          <!-- Main Content -->
+          <div class="dashboard-main">
+            <!-- Welcome Card -->
+            <div class="welcome-card">
+              <h2>Interview Hub</h2>
+              <p>Streamline your hiring process with personality assessments, scenario evaluations, and structured interview tools.</p>
+              <div class="welcome-actions">
+                <button class="welcome-btn" onclick="showTab('assessment')">Start Assessment</button>
+                <button class="welcome-btn secondary" onclick="showTab('scenarios')">View Scenarios</button>
+              </div>
             </div>
-            <div class="color-card" style="border-left: 5px solid #2E8B57;">
-              <h4 style="color: #2E8B57;">Green</h4>
-              <p>Analytical, logical, conceptual, inventive</p>
+
+            <!-- Modules Section -->
+            <div class="modules-section">
+              <h3>Assessment Modules</h3>
+              <div class="modules-grid">
+                <div class="module-card" style="--module-color: #D4AF37;" onclick="showTab('assessment')">
+                  <div class="module-icon">TC</div>
+                  <h4>True Colors Assessment</h4>
+                  <p>Personality-based evaluation to understand communication styles and work preferences.</p>
+                  <div class="module-meta">
+                    <span>20 questions</span>
+                    <span>10-15 min</span>
+                  </div>
+                </div>
+
+                <div class="module-card" style="--module-color: #3182ce;" onclick="showTab('scenarios')">
+                  <div class="module-icon">SC</div>
+                  <h4>In-Home Scenarios</h4>
+                  <p>Real-world family services situations to evaluate critical thinking and approach.</p>
+                  <div class="module-meta">
+                    <span>6 scenarios</span>
+                    <span>45-60 min</span>
+                  </div>
+                </div>
+
+                <div class="module-card" style="--module-color: #48bb78;" onclick="showTab('questionnaire')">
+                  <div class="module-icon">QU</div>
+                  <h4>Interview Questionnaire</h4>
+                  <p>Structured questions with rating scales for consistent candidate evaluation.</p>
+                  <div class="module-meta">
+                    <span>4 sections</span>
+                    <span>Interviewer use</span>
+                  </div>
+                </div>
+
+                <div class="module-card" style="--module-color: #ed8936;" onclick="showTab('interview')">
+                  <div class="module-icon">EV</div>
+                  <h4>Final Evaluation</h4>
+                  <p>Comprehensive scoring with red/green flags and hiring recommendations.</p>
+                  <div class="module-meta">
+                    <span>Full review</span>
+                    <span>Decision support</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="color-card" style="border-left: 5px solid #FF8C00;">
-              <h4 style="color: #FF8C00;">Orange</h4>
-              <p>Adventurous, spontaneous, action-oriented, flexible</p>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="dashboard-sidebar">
+            <!-- True Colors Quick Reference -->
+            <div class="sidebar-card">
+              <h3>True Colors Reference</h3>
+              <div class="colors-mini">
+                <div class="color-mini-item">
+                  <div class="color-dot" style="background: #D4AF37;"></div>
+                  <span>Gold</span>
+                  <small>Planner</small>
+                </div>
+                <div class="color-mini-item">
+                  <div class="color-dot" style="background: #2E8B57;"></div>
+                  <span>Green</span>
+                  <small>Thinker</small>
+                </div>
+                <div class="color-mini-item">
+                  <div class="color-dot" style="background: #FF8C00;"></div>
+                  <span>Orange</span>
+                  <small>Doer</small>
+                </div>
+                <div class="color-mini-item">
+                  <div class="color-dot" style="background: #4169E1;"></div>
+                  <span>Blue</span>
+                  <small>Connector</small>
+                </div>
+              </div>
             </div>
-            <div class="color-card" style="border-left: 5px solid #4169E1;">
-              <h4 style="color: #4169E1;">Blue</h4>
-              <p>Empathetic, compassionate, relationship-focused, harmonious</p>
+
+            <!-- Quick Stats -->
+            <div class="sidebar-card">
+              <h3>Quick Stats</h3>
+              <div class="quick-stats">
+                <div class="stat-item">
+                  <span class="stat-label">Assessment Questions</span>
+                  <span class="stat-value">20</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Scenarios</span>
+                  <span class="stat-value">6</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Evaluation Sections</span>
+                  <span class="stat-value">4</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="sidebar-card">
+              <h3>System</h3>
+              <div class="quick-stats">
+                <div class="stat-item">
+                  <span class="stat-label">Status</span>
+                  <span class="stat-value" style="color: #48bb78;">Active</span>
+                </div>
+              </div>
+              <button class="btn-secondary" style="width: 100%; margin-top: 12px;" onclick="checkSheetsConnection()">
+                Check Connection
+              </button>
             </div>
           </div>
         </div>
