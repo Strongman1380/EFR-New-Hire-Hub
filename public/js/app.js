@@ -1194,6 +1194,261 @@ function resetQuestionnaire() {
 }
 
 // ===================================
+// Employee Reviews
+// ===================================
+
+function calculateReviewSummary() {
+  // Collect all ratings
+  const allRatings = [];
+
+  // Job Performance ratings (5 items)
+  const perfFields = ['perf_accountability', 'perf_problem_solving', 'perf_quality', 'perf_time', 'perf_professionalism'];
+  perfFields.forEach(field => {
+    const selected = document.querySelector(`input[name="${field}"]:checked`);
+    if (selected) {
+      allRatings.push(parseInt(selected.value));
+    }
+  });
+
+  // Relationship ratings (4 items)
+  const relFields = ['rel_clients', 'rel_coworkers', 'rel_consumers', 'rel_public'];
+  relFields.forEach(field => {
+    const selected = document.querySelector(`input[name="${field}"]:checked`);
+    if (selected) {
+      allRatings.push(parseInt(selected.value));
+    }
+  });
+
+  // Governance & Compliance ratings (6 items)
+  const govFields = ['gov_policies', 'gov_certifications', 'gov_licensures', 'gov_safety', 'gov_reporting', 'gov_documentation'];
+  govFields.forEach(field => {
+    const selected = document.querySelector(`input[name="${field}"]:checked`);
+    if (selected) {
+      allRatings.push(parseInt(selected.value));
+    }
+  });
+
+  // Calculate totals
+  const totalPoints = allRatings.reduce((sum, val) => sum + val, 0);
+  const average = allRatings.length > 0 ? (totalPoints / allRatings.length).toFixed(2) : 0;
+
+  // Update display
+  document.getElementById('review-total-points').textContent = totalPoints;
+  document.getElementById('review-average').textContent = average;
+
+  // Calculate bonus eligibility (only for 12-month reviews)
+  const reviewType = document.getElementById('review-type').value;
+  let bonusText = 'N/A';
+  let bonusColor = 'var(--gray-500)';
+
+  if (reviewType === '12-month') {
+    if (parseFloat(average) >= 5.0) {
+      bonusText = '$100';
+      bonusColor = 'var(--success)';
+    } else if (parseFloat(average) >= 4.0) {
+      bonusText = '$80';
+      bonusColor = '#22c55e';
+    } else if (parseFloat(average) >= 3.0) {
+      bonusText = '$60';
+      bonusColor = 'var(--warning)';
+    } else {
+      bonusText = 'No Bonus';
+      bonusColor = 'var(--danger)';
+    }
+  }
+
+  const bonusElement = document.getElementById('review-bonus');
+  bonusElement.textContent = bonusText;
+  bonusElement.style.color = bonusColor;
+
+  // Add styling to selected rating buttons
+  document.querySelectorAll('.review-category .scale-btn').forEach(btn => {
+    const input = btn.querySelector('input');
+    if (input.checked) {
+      btn.classList.add('selected');
+    } else {
+      btn.classList.remove('selected');
+    }
+  });
+
+  if (allRatings.length < 15) {
+    showAlert('warning', `Please complete all ratings (${allRatings.length}/15 completed)`);
+  } else {
+    showAlert('success', `Summary calculated: ${average} average (${totalPoints}/75 points)`);
+  }
+
+  return { totalPoints, average, allRatings };
+}
+
+async function submitReview() {
+  const employeeName = document.getElementById('review-employee-name').value;
+  const dateOfHire = document.getElementById('review-date-of-hire').value;
+  const reviewDate = document.getElementById('review-date').value;
+  const department = document.getElementById('review-department').value;
+  const supervisor = document.getElementById('review-supervisor').value;
+  const reviewType = document.getElementById('review-type').value;
+
+  // Validate required fields
+  if (!employeeName || !reviewDate || !supervisor || !reviewType) {
+    showAlert('warning', 'Please fill in all required fields (Employee Name, Review Date, Supervisor, Review Type)');
+    return;
+  }
+
+  // Calculate summary
+  const summary = calculateReviewSummary();
+
+  if (summary.allRatings.length < 15) {
+    if (!confirm('Not all criteria have been rated. Do you want to submit anyway?')) {
+      return;
+    }
+  }
+
+  // Collect detailed ratings
+  const ratings = {
+    performance: {
+      accountability: getRadioValue('perf_accountability'),
+      problemSolving: getRadioValue('perf_problem_solving'),
+      qualityOfWork: getRadioValue('perf_quality'),
+      timeManagement: getRadioValue('perf_time'),
+      professionalism: getRadioValue('perf_professionalism')
+    },
+    relationship: {
+      clients: getRadioValue('rel_clients'),
+      coworkers: getRadioValue('rel_coworkers'),
+      consumers: getRadioValue('rel_consumers'),
+      public: getRadioValue('rel_public')
+    },
+    governance: {
+      policies: getRadioValue('gov_policies'),
+      certifications: getRadioValue('gov_certifications'),
+      licensures: getRadioValue('gov_licensures'),
+      safety: getRadioValue('gov_safety'),
+      reporting: getRadioValue('gov_reporting'),
+      documentation: getRadioValue('gov_documentation')
+    }
+  };
+
+  // Collect comments
+  const comments = {
+    strengths: document.getElementById('review-strengths').value,
+    improvements: document.getElementById('review-improvements').value,
+    goals: document.getElementById('review-goals').value
+  };
+
+  // Prepare review data
+  const reviewData = {
+    employeeName,
+    dateOfHire,
+    reviewDate,
+    department,
+    supervisor,
+    reviewType,
+    ratings,
+    comments,
+    summary: {
+      totalPoints: summary.totalPoints,
+      average: summary.average,
+      bonusEligible: reviewType === '12-month' ? (parseFloat(summary.average) >= 3.0) : false,
+      bonusAmount: reviewType === '12-month' ? calculateBonus(summary.average) : 0
+    },
+    submittedAt: new Date().toISOString()
+  };
+
+  try {
+    // Send email notification
+    const response = await fetch(`${API_BASE}/reviews/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reviewData)
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      showAlert('success', 'Review submitted and emailed successfully!');
+      showModal(`
+        <h3>Review Submitted</h3>
+        <p><strong>Employee:</strong> ${employeeName}</p>
+        <p><strong>Supervisor:</strong> ${supervisor}</p>
+        <p><strong>Review Type:</strong> ${reviewType}</p>
+        <p><strong>Total Points:</strong> ${summary.totalPoints}/75</p>
+        <p><strong>Average Rating:</strong> ${summary.average}/5.0</p>
+        ${reviewType === '12-month' ? `<p><strong>Bonus:</strong> ${calculateBonus(summary.average)}</p>` : ''}
+        <p style="margin-top: 16px; color: var(--gray-600);">
+          An email notification has been sent with the full review details.
+        </p>
+      `);
+    } else {
+      showAlert('error', data.message || 'Failed to submit review');
+    }
+  } catch (error) {
+    console.error('Review submission failed:', error);
+    showAlert('error', 'Failed to submit review. Please try again.');
+  }
+}
+
+function getRadioValue(name) {
+  const selected = document.querySelector(`input[name="${name}"]:checked`);
+  return selected ? parseInt(selected.value) : null;
+}
+
+function calculateBonus(average) {
+  const avg = parseFloat(average);
+  if (avg >= 5.0) return '$100';
+  if (avg >= 4.0) return '$80';
+  if (avg >= 3.0) return '$60';
+  return 'No Bonus';
+}
+
+function resetReview() {
+  // Reset text inputs
+  document.getElementById('review-employee-name').value = '';
+  document.getElementById('review-date-of-hire').value = '';
+  document.getElementById('review-date').value = '';
+  document.getElementById('review-department').value = '';
+  document.getElementById('review-supervisor').value = '';
+  document.getElementById('review-type').value = '';
+
+  // Reset all radio buttons
+  document.querySelectorAll('#reviews input[type="radio"]').forEach(radio => {
+    radio.checked = false;
+  });
+
+  // Reset textareas
+  document.getElementById('review-strengths').value = '';
+  document.getElementById('review-improvements').value = '';
+  document.getElementById('review-goals').value = '';
+
+  // Reset summary display
+  document.getElementById('review-total-points').textContent = '--';
+  document.getElementById('review-average').textContent = '--';
+  document.getElementById('review-bonus').textContent = '--';
+  document.getElementById('review-bonus').style.color = '';
+
+  // Remove selected styling
+  document.querySelectorAll('.review-category .scale-btn').forEach(btn => {
+    btn.classList.remove('selected');
+  });
+
+  showAlert('success', 'Review form has been reset');
+}
+
+// Add event listeners for real-time summary updates
+document.addEventListener('DOMContentLoaded', () => {
+  // Add change listeners to all review rating inputs
+  document.querySelectorAll('#reviews input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      // Update selected styling
+      const ratingScale = radio.closest('.rating-scale');
+      if (ratingScale) {
+        ratingScale.querySelectorAll('.scale-btn').forEach(btn => btn.classList.remove('selected'));
+        radio.closest('.scale-btn').classList.add('selected');
+      }
+    });
+  });
+});
+
+// ===================================
 // Utilities
 // ===================================
 

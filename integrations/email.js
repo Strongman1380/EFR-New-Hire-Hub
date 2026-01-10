@@ -376,6 +376,240 @@ async function sendInterviewNotification(data) {
   }
 }
 
+// Send Employee Review notification
+async function sendReviewNotification(data) {
+  const transporter = createTransporter();
+  if (!transporter) {
+    console.log('Email not configured - skipping notification');
+    return { sent: false, reason: 'Email not configured' };
+  }
+
+  const {
+    employeeName,
+    dateOfHire,
+    reviewDate,
+    department,
+    supervisor,
+    reviewType,
+    ratings,
+    comments,
+    summary,
+    submittedAt
+  } = data;
+
+  // Format review type for display
+  const reviewTypeLabels = {
+    '6-month': '6 Month Initial Review',
+    '12-month': '12 Month Evaluation',
+    'annual': 'Annual Review'
+  };
+
+  // Calculate section averages
+  const perfValues = Object.values(ratings.performance).filter(v => v !== null);
+  const perfAvg = perfValues.length > 0 ? (perfValues.reduce((a, b) => a + b, 0) / perfValues.length).toFixed(2) : 'N/A';
+
+  const relValues = Object.values(ratings.relationship).filter(v => v !== null);
+  const relAvg = relValues.length > 0 ? (relValues.reduce((a, b) => a + b, 0) / relValues.length).toFixed(2) : 'N/A';
+
+  const govValues = Object.values(ratings.governance).filter(v => v !== null);
+  const govAvg = govValues.length > 0 ? (govValues.reduce((a, b) => a + b, 0) / govValues.length).toFixed(2) : 'N/A';
+
+  // Get rating color
+  function getRatingColor(value) {
+    if (value >= 4.5) return '#059669';
+    if (value >= 3.5) return '#22c55e';
+    if (value >= 2.5) return '#eab308';
+    if (value >= 1.5) return '#f97316';
+    return '#ef4444';
+  }
+
+  // Get rating label
+  function getRatingLabel(value) {
+    if (value === 5) return 'Significant Strength';
+    if (value === 4) return 'Strength';
+    if (value === 3) return 'Acceptable';
+    if (value === 2) return 'Needs Development';
+    if (value === 1) return 'Needs Significant Development';
+    return 'Not Rated';
+  }
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #1a365d, #2c5282); color: white; padding: 24px; border-radius: 8px 8px 0 0; }
+        .content { background: #f7fafc; padding: 24px; border: 1px solid #e2e8f0; }
+        .section { background: white; padding: 20px; border-radius: 8px; margin: 16px 0; border: 1px solid #e2e8f0; }
+        .summary-box { background: linear-gradient(135deg, #1a365d, #2c5282); color: white; padding: 24px; border-radius: 8px; margin: 20px 0; text-align: center; }
+        .summary-grid { display: flex; justify-content: center; gap: 30px; margin-top: 16px; }
+        .summary-item { text-align: center; }
+        .summary-value { font-size: 2rem; font-weight: bold; }
+        .summary-label { font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; }
+        .rating-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+        .rating-row:last-child { border-bottom: none; }
+        .rating-value { font-weight: bold; padding: 2px 8px; border-radius: 4px; color: white; }
+        .bonus-badge { background: #fcd34d; color: #1a365d; padding: 8px 16px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 12px; }
+        h1 { margin: 0; }
+        h2 { color: #1a365d; border-bottom: 2px solid #3182ce; padding-bottom: 8px; }
+        h3 { color: #2c5282; margin-bottom: 12px; }
+        .footer { text-align: center; padding: 20px; color: #718096; font-size: 12px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .info-item { padding: 8px 0; }
+        .info-label { font-size: 0.75rem; color: #718096; text-transform: uppercase; }
+        .info-value { font-weight: 500; }
+        .comment-box { background: #f7fafc; padding: 12px; border-radius: 6px; border-left: 3px solid #3182ce; margin: 8px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Employee Performance Review</h1>
+          <p>${reviewTypeLabels[reviewType] || reviewType}</p>
+        </div>
+
+        <div class="content">
+          <!-- Summary Box -->
+          <div class="summary-box">
+            <h2 style="color: white; border: none; margin: 0 0 8px 0;">Review Summary</h2>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <div class="summary-value">${summary.totalPoints}</div>
+                <div class="summary-label">Total Points (of 75)</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value">${summary.average}</div>
+                <div class="summary-label">Average Rating (of 5.0)</div>
+              </div>
+            </div>
+            ${reviewType === '12-month' && summary.bonusEligible ? `
+              <div class="bonus-badge">Bonus: ${summary.bonusAmount}</div>
+            ` : ''}
+          </div>
+
+          <!-- Employee Information -->
+          <div class="section">
+            <h3>Employee Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">Employee Name</div>
+                <div class="info-value">${employeeName}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Department</div>
+                <div class="info-value">${department || 'Not specified'}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Date of Hire</div>
+                <div class="info-value">${dateOfHire ? new Date(dateOfHire).toLocaleDateString() : 'Not specified'}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Review Date</div>
+                <div class="info-value">${new Date(reviewDate).toLocaleDateString()}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Supervisor</div>
+                <div class="info-value">${supervisor}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Review Type</div>
+                <div class="info-value">${reviewTypeLabels[reviewType] || reviewType}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Job Performance -->
+          <div class="section">
+            <h3>Job Performance (Avg: ${perfAvg})</h3>
+            ${Object.entries(ratings.performance).map(([key, value]) => `
+              <div class="rating-row">
+                <span>${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
+                <span class="rating-value" style="background: ${value ? getRatingColor(value) : '#9ca3af'};">
+                  ${value || '-'} ${value ? `- ${getRatingLabel(value)}` : ''}
+                </span>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Relationship -->
+          <div class="section">
+            <h3>Relationship (Avg: ${relAvg})</h3>
+            ${Object.entries(ratings.relationship).map(([key, value]) => `
+              <div class="rating-row">
+                <span>${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                <span class="rating-value" style="background: ${value ? getRatingColor(value) : '#9ca3af'};">
+                  ${value || '-'} ${value ? `- ${getRatingLabel(value)}` : ''}
+                </span>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Governance & Compliance -->
+          <div class="section">
+            <h3>Governance & Compliance (Avg: ${govAvg})</h3>
+            ${Object.entries(ratings.governance).map(([key, value]) => `
+              <div class="rating-row">
+                <span>${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                <span class="rating-value" style="background: ${value ? getRatingColor(value) : '#9ca3af'};">
+                  ${value || '-'} ${value ? `- ${getRatingLabel(value)}` : ''}
+                </span>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Comments -->
+          ${(comments.strengths || comments.improvements || comments.goals) ? `
+          <div class="section">
+            <h3>Comments & Goals</h3>
+            ${comments.strengths ? `
+              <div style="margin-bottom: 16px;">
+                <strong>Strengths & Accomplishments:</strong>
+                <div class="comment-box">${comments.strengths}</div>
+              </div>
+            ` : ''}
+            ${comments.improvements ? `
+              <div style="margin-bottom: 16px;">
+                <strong>Areas for Improvement:</strong>
+                <div class="comment-box">${comments.improvements}</div>
+              </div>
+            ` : ''}
+            ${comments.goals ? `
+              <div>
+                <strong>Goals for Next Review Period:</strong>
+                <div class="comment-box">${comments.goals}</div>
+              </div>
+            ` : ''}
+          </div>
+          ` : ''}
+        </div>
+
+        <div class="footer">
+          <p>Epworth Family Resources | Employee Performance Review</p>
+          <p>Submitted: ${new Date(submittedAt).toLocaleString()}</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: `"Epworth HR System" <${process.env.EMAIL_USER}>`,
+      to: process.env.NOTIFICATION_EMAIL,
+      subject: `Employee Review: ${employeeName} - ${reviewTypeLabels[reviewType] || reviewType} (${summary.average}/5.0)`,
+      html: htmlContent
+    });
+
+    console.log(`Review notification sent for ${employeeName}`);
+    return { sent: true };
+  } catch (error) {
+    console.error('Failed to send review email:', error);
+    return { sent: false, error: error.message };
+  }
+}
+
 // Check if email is configured
 function isEmailConfigured() {
   return !!(process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.NOTIFICATION_EMAIL);
@@ -385,5 +619,6 @@ module.exports = {
   sendAssessmentNotification,
   sendScenarioNotification,
   sendInterviewNotification,
+  sendReviewNotification,
   isEmailConfigured
 };

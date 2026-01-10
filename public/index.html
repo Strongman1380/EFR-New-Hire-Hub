@@ -27,6 +27,7 @@
           <button class="nav-tab" data-tab="scenarios">Scenarios</button>
           <button class="nav-tab" data-tab="questionnaire">Questionnaire</button>
           <button class="nav-tab" data-tab="interview">Evaluation</button>
+          <button class="nav-tab" data-tab="reviews">Reviews</button>
         </nav>
       </div>
     </header>
@@ -427,6 +428,296 @@
           <div class="templates-accordion" id="question-templates">
             <!-- Populated by JavaScript -->
           </div>
+        </div>
+      </section>
+
+      <!-- Employee Reviews Tab -->
+      <section id="reviews" class="tab-content">
+        <div class="section-header">
+          <h2>Employee Performance Review</h2>
+          <p>Complete performance evaluations for team members</p>
+        </div>
+
+        <!-- Employee Info -->
+        <div class="form-section">
+          <h3>Employee Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="review-employee-name">Employee Name *</label>
+              <input type="text" id="review-employee-name" required>
+            </div>
+            <div class="form-group">
+              <label for="review-date-of-hire">Date of Hire</label>
+              <input type="date" id="review-date-of-hire">
+            </div>
+            <div class="form-group">
+              <label for="review-date">Review Date *</label>
+              <input type="date" id="review-date" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="review-department">Department</label>
+              <input type="text" id="review-department">
+            </div>
+            <div class="form-group">
+              <label for="review-supervisor">Supervisor *</label>
+              <input type="text" id="review-supervisor" required>
+            </div>
+            <div class="form-group">
+              <label for="review-type">Review Type *</label>
+              <select id="review-type" required>
+                <option value="">Select...</option>
+                <option value="6-month">6 Month Initial Review</option>
+                <option value="12-month">12 Month Evaluation (Bonus Available)</option>
+                <option value="annual">Annual Review</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Job Performance -->
+        <div class="form-section review-category">
+          <h3>Job Performance</h3>
+          <p class="category-description">Evaluate the employee's core job competencies</p>
+
+          <div class="review-criteria">
+            <div class="criteria-item" data-criteria="accountability">
+              <span class="criteria-label">Accountability</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="perf_accountability" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_accountability" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_accountability" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_accountability" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_accountability" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="problem_solving">
+              <span class="criteria-label">Problem Solving</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="perf_problem_solving" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_problem_solving" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_problem_solving" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_problem_solving" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_problem_solving" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="quality_of_work">
+              <span class="criteria-label">Quality of Work</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="perf_quality" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_quality" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_quality" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_quality" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_quality" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="time_management">
+              <span class="criteria-label">Time Management</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="perf_time" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_time" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_time" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_time" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_time" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="professionalism">
+              <span class="criteria-label">Professionalism</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="perf_professionalism" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_professionalism" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_professionalism" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_professionalism" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="perf_professionalism" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Relationship -->
+        <div class="form-section review-category">
+          <h3>Relationship</h3>
+          <p class="category-description">Evaluate interpersonal skills and interactions</p>
+
+          <div class="review-criteria">
+            <div class="criteria-item" data-criteria="clients">
+              <span class="criteria-label">Clients</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="rel_clients" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_clients" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_clients" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_clients" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_clients" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="coworkers">
+              <span class="criteria-label">Coworkers</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="rel_coworkers" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_coworkers" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_coworkers" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_coworkers" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_coworkers" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="consumers">
+              <span class="criteria-label">Consumers</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="rel_consumers" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_consumers" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_consumers" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_consumers" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_consumers" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="public">
+              <span class="criteria-label">Public</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="rel_public" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_public" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_public" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_public" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="rel_public" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Governance & Compliance -->
+        <div class="form-section review-category">
+          <h3>Governance & Compliance</h3>
+          <p class="category-description">Evaluate adherence to policies, procedures, and regulations</p>
+
+          <div class="review-criteria">
+            <div class="criteria-item" data-criteria="policies">
+              <span class="criteria-label">Policies & Procedures</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="gov_policies" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_policies" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_policies" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_policies" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_policies" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="certifications">
+              <span class="criteria-label">Certifications</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="gov_certifications" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_certifications" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_certifications" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_certifications" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_certifications" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="licensures">
+              <span class="criteria-label">Licensures</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="gov_licensures" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_licensures" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_licensures" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_licensures" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_licensures" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="safety">
+              <span class="criteria-label">Safety</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="gov_safety" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_safety" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_safety" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_safety" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_safety" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="reporting">
+              <span class="criteria-label">Reporting</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="gov_reporting" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_reporting" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_reporting" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_reporting" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_reporting" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+
+            <div class="criteria-item" data-criteria="documentation">
+              <span class="criteria-label">Documentation</span>
+              <div class="rating-scale">
+                <label class="scale-btn"><input type="radio" name="gov_documentation" value="5"><span>5</span><small>Significant Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_documentation" value="4"><span>4</span><small>Strength</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_documentation" value="3"><span>3</span><small>Acceptable</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_documentation" value="2"><span>2</span><small>Needs Dev.</small></label>
+                <label class="scale-btn"><input type="radio" name="gov_documentation" value="1"><span>1</span><small>Significant Dev.</small></label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="form-section">
+          <h3>Additional Comments</h3>
+          <div class="form-group">
+            <label for="review-strengths">Strengths & Accomplishments</label>
+            <textarea id="review-strengths" rows="3" placeholder="Note key strengths and accomplishments during this review period..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="review-improvements">Areas for Improvement</label>
+            <textarea id="review-improvements" rows="3" placeholder="Note areas where development is needed..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="review-goals">Goals for Next Review Period</label>
+            <textarea id="review-goals" rows="3" placeholder="Set specific, measurable goals..."></textarea>
+          </div>
+        </div>
+
+        <!-- Totals & Summary -->
+        <div class="form-section review-summary" id="review-summary">
+          <h3>Review Summary</h3>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="summary-label">Total Points</span>
+              <span class="summary-value" id="review-total-points">--</span>
+              <span class="summary-max">/ 75</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Average Rating</span>
+              <span class="summary-value" id="review-average">--</span>
+              <span class="summary-max">/ 5.0</span>
+            </div>
+            <div class="summary-item bonus-item">
+              <span class="summary-label">Bonus Eligible</span>
+              <span class="summary-value" id="review-bonus">--</span>
+            </div>
+          </div>
+          <div class="bonus-scale">
+            <p><strong>Bonus Scale (12-month reviews only):</strong></p>
+            <div class="bonus-tiers">
+              <span class="tier tier-5">Avg 5.0 = $100</span>
+              <span class="tier tier-4">Avg 4.0+ = $80</span>
+              <span class="tier tier-3">Avg 3.0+ = $60</span>
+              <span class="tier tier-2">Avg &lt;3.0 = No Bonus</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="assessment-actions">
+          <button class="btn-primary" onclick="submitReview()">Submit & Email Review</button>
+          <button class="btn-secondary" onclick="calculateReviewSummary()">Calculate Summary</button>
+          <button class="btn-secondary" onclick="resetReview()">Reset Form</button>
+          <a href="txt/staff-evaluation.txt" download="staff-evaluation.txt" class="btn-secondary" style="text-decoration: none; display: inline-block;">Download Printable Form</a>
         </div>
       </section>
     </main>

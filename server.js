@@ -15,12 +15,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 const assessmentModule = require('./modules/assessment');
 const scenariosModule = require('./modules/scenarios');
 const interviewModule = require('./modules/interview');
+const reviewsModule = require('./modules/reviews');
 const sheetsIntegration = require('./integrations/googleSheets');
 
 // API Routes
 app.use('/api/assessment', assessmentModule);
 app.use('/api/scenarios', scenariosModule);
 app.use('/api/interview', interviewModule);
+app.use('/api/reviews', reviewsModule);
 app.use('/api/sheets', sheetsIntegration);
 
 // Serve main application
